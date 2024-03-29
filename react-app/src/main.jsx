@@ -9,17 +9,17 @@ const params = window.Telegram.WebApp.themeParams;
 const theme = extendTheme({
   components: {
     Button: {
-      // 1. We can update the base styles
       baseStyle: {
-        fontWeight: 'bold', // Normally, it is "semibold"
+        fontWeight: "bold",
+        borderRadius: "base",
       },
-      // 3. We can add a new visual variant
+
       variants: {
-        // 4. We can override existing variants
-        solid: (props) => ({
+        solid: {
           bg: params.button_color,
-          color: params.button_text_color
-        }),
+          borderColor: params.bg_color,
+          color: params.button_text_color,
+        },
       },
     },
   },
