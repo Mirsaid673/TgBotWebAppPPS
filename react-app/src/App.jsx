@@ -15,23 +15,20 @@ function App() {
     <>
       <VStack spacing="10px" align="stretch" justify="center">
         <HStack spacing="10px">
-          <Button colorScheme="blue" onClick={() => console.log("clicked")}>
+          <Button onClick={() => console.log("clicked")}>
             Button
           </Button>
-          <Button colorScheme="blue">Button</Button>
+          <Button >Button</Button>
         </HStack>
-
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt exercitationem laudantium deleniti labore in reprehenderit aut inventore at, perferendis velit ex tenetur ducimus nam repellat dignissimos iure, sint amet cumque!  </div>
-        <button>Button</button>
         <HStack spacing="10px">
-          <Button colorScheme="blue" onClick={() => console.log("clicked")}>
+          <Button  onClick={() => console.log("clicked")}>
             Button
           </Button>
-          <Button colorScheme="blue">Button</Button>
+          <Button >Button</Button>
         </HStack>
 
         <Button
-          colorScheme="blue"
+          
           fill={true}
           onClick={() => console.log("clicked")}
         >

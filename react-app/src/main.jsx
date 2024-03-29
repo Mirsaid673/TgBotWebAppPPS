@@ -4,38 +4,33 @@ import App from "./App.jsx";
 import "./index.css";
 import { extendTheme, ChakraProvider } from "@chakra-ui/react";
 
+const params = window.Telegram.WebApp.themeParams;
+
 const theme = extendTheme({
   components: {
     Button: {
       // 1. We can update the base styles
       baseStyle: {
         fontWeight: 'bold', // Normally, it is "semibold"
-        bg: window.Telegram.WebApp.themeParams.button_color,
       },
-      // 2. We can add a new button size or extend existing
-      sizes: {
-        xl: {
-          h: '56px',
-          fontSize: 'lg',
-          px: '32px',
-        },
+      // 3. We can add a new visual variant
+      variants: {
+        // 4. We can override existing variants
+        solid: (props) => ({
+          bg: params.button_color,
+          color: params.button_text_color
+        }),
       },
     },
   },
 
   styles: {
     global: {
-      // styles for the `body`
       body: {
-        bg: window.Telegram.WebApp.themeParams.bg_color,
-        color: window.Telegram.WebApp.themeParams.text_color,
-      },
-      // styles for the `a`
-      a: {
-        color: "teal.500",
-        _hover: {
-          textDecoration: "underline",
-        },
+        bg: params.bg_color,
+        color: params.text_color,
+        link_color: params.link_color,
+        hint_color: params.hint_color,
       },
     },
   },
