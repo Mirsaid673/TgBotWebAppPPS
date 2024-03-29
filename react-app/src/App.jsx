@@ -21,8 +21,8 @@ function App() {
           <Button colorScheme="blue">Button</Button>
         </HStack>
 
-        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt exercitationem laudantium deleniti labore in reprehenderit aut inventore at, perferendis velit ex tenetur ducimus nam repellat dignissimos iure, sint amet cumque!</div>
-
+        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt exercitationem laudantium deleniti labore in reprehenderit aut inventore at, perferendis velit ex tenetur ducimus nam repellat dignissimos iure, sint amet cumque!  </div>
+        <button>Button</button>
         <HStack spacing="10px">
           <Button colorScheme="blue" onClick={() => console.log("clicked")}>
             Button

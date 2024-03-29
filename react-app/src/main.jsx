@@ -10,7 +10,7 @@ const theme = extendTheme({
       // styles for the `body`
       body: {
         bg: window.Telegram.WebApp.themeParams.bg_color,
-        color: window.Telegram.WebApp.themeParams.bg_color,
+        color: window.Telegram.WebApp.themeParams.text_color,
       },
       // styles for the `a`
       a: {
