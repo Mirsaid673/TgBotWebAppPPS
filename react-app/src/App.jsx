@@ -26,7 +26,6 @@ function App() {
             Button
           </Button>
           <Button colorScheme="blue">Button</Button>
-          <button>button</button>
         </HStack>
 
         <Button
