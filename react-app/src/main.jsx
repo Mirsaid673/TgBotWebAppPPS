@@ -4,10 +4,15 @@ import App from './App.jsx'
 import './index.css'
 import { ChakraProvider } from '@chakra-ui/react'
 
+
+
+window.Telegram.WebApp.themeParams
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ChakraProvider>
+    {/* <ChakraProvider>
       <App />
-    </ChakraProvider>
+    </ChakraProvider> */}
+    <button>dadasd</button>
   </React.StrictMode>,
 )
