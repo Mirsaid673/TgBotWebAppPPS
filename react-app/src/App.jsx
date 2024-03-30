@@ -13,14 +13,14 @@ function App() {
   // 2. Wrap ChakraProvider at the root of your app
   return (
     <>
-      <VStack spacing="10px" align="stretch" justify="center">
-        <HStack spacing="10px">
+      <VStack spacing="12px" align="stretch" justify="center">
+        <HStack spacing="20px">
           <Button onClick={() => console.log("clicked")}>
             Button
           </Button>
           <Button >Button</Button>
         </HStack>
-        <HStack spacing="10px">
+        <HStack spacing="20px">
           <Button  onClick={() => console.log("clicked")}>
             Button
           </Button>
@@ -29,7 +29,6 @@ function App() {
 
         <Button
           
-          fill={true}
           onClick={() => console.log("clicked")}
         >
           back
