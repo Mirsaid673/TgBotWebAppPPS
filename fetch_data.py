@@ -1,21 +1,29 @@
 import os
 import requests
-import csv
 import json
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 
 t_date = datetime.now().strftime('%d_%m_%Y')
+events = {}
+theatres_ids = {}
+theatre_url = {}
+name_url = {}
+genre_names = {}
+name_rating = {}
+dates_days_of_week = {}
 
 
 # get the HTML document
 def collect_data(date: str, city: str):
-    response = requests.get(url=f'https://kino.vl.ru/films/seances/?city={city}')
-    if response.status_code != 200:
-        raise KeyError('Response is not 200')
-    with open(f'data_{city}_{date}.html', 'w') as file:
-        file.write(response.text)
+    if not os.path.isfile(f'data_{city}_{date}.html'):
+        response = requests.get(url=f'https://kino.vl.ru/films/seances/?city={city}')
+        print(f'https://kino.vl.ru/films/seances/?city={city} fetched')
+        if response.status_code != 200:
+            raise KeyError('Response is not 200')
+        with open(f'data_{city}_{date}.html', 'w') as file:
+            file.write(response.text)
 
 
 # separate the day of the week and delete extra whitespaces
@@ -32,6 +40,21 @@ def get_clear_text(text: str) -> tuple[str, str]:
     return text, found_day
 
 
+# 1 апреля -> 01.04
+def strict_date_format(text: str) -> tuple[str, str]:
+    text = text.split()
+    day = text[0]
+    month = text[1]
+    if len(day) == 1:
+        day = '0' + day
+    months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+              'августа', 'сентября', 'октября', 'ноября', 'декабря']
+    month = str(months.index(month) + 1)
+    if len(month) == 1:
+        month = '0' + month
+    return day, month
+
+
 # parse event cost
 def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
     global t_date
@@ -39,6 +62,7 @@ def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
     film_id = ref.split('/')[-2]  # separate id
     if not os.path.isfile(f'films/{city}_{t_date}_{film_id}.html'):  # first check if file exists not to parse it twice
         response = requests.get(f'https://kino.vl.ru{ref}?city={city}')
+        print(f'https://kino.vl.ru{ref}?city={city} fetched')
         if response.status_code != 200:
             raise KeyError('Response is not 200')
         with open(f'films/{city}_{t_date}_{film_id}.html', 'w') as file:
@@ -82,13 +106,11 @@ def write_event(curr_date: str, curr_time: str, events: dict, triples: list) -> 
 
 
 # parse films from the HTML document
-def parse_data(date: str, city: str) -> tuple:
+def parse_data(date: str, city: str):
     # `date` means the real today's date; `curr_date` and `curr_time` are intended for currently parsing elements
     with open(f'data_{city}_{date}.html') as file:
         soup = BeautifulSoup(file, 'html.parser')
 
-    events = {}
-    dates_days_of_week = {}
     curr_date = ""
 
     trs = soup.find_all('tr')
@@ -113,41 +135,47 @@ def parse_data(date: str, city: str) -> tuple:
                     write_event(curr_date, curr_time, events, name_to_theatre(for_name, curr_date, curr_time, city))
         i += 1
 
-    return events, dates_days_of_week
 
+def save_data(date: str, city: str) -> None:
+    # create jsons
 
-def save_data(events: dict, days_of_week: dict, date: str, city: str) -> None:
-    # create json
-    with open(f'data_{city}_{date}.json', 'w') as file:
-        json.dump(events, file, indent=4, ensure_ascii=False)
+    json.dump(events, open(f'events_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(theatres_ids, open(f'theatres_ids_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(name_url, open(f'name_url_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(theatre_url, open(f'theatre_url_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(genre_names, open(f'genre_names_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(name_rating, open(f'name_rating_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(dates_days_of_week, open(f'dates_days_of_week_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
 
     # write headers
-    with open(f'data_{city}_{date}.csv', 'w') as file:
-        writer = csv.writer(file)
-        writer.writerow(
-            ('Дата', 'День недели', 'Время', 'Фильм', 'Кинотеатр', 'Цена от, руб')
-        )
+    # with open(f'data_{city}_{date}.csv', 'w') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(
+    #         ('id', 'Дата', 'День недели', 'Время', 'Фильм', 'Кинотеатр', 'Цена от, руб')
+    #     )
 
     # write contents
-    with open(f'data_{city}_{date}.csv', 'a') as file:
-        writer = csv.writer(file)
-        for [f_date, times] in events.items():
-            day_week = days_of_week[f_date]
-            for [time, films] in times.items():
-                for [name, theatre, cost] in films:
-                    writer.writerow(
-                        (f_date, day_week, time, name, theatre, cost)
-                    )
+    # event_id = 0
+    # with open(f'data_{city}_{date}.csv', 'a') as file:
+    #     writer_events = csv.writer(file)
+    #     for [f_date, times] in events.items():
+    #         day_week = days_of_week[f_date]
+    #         for [time, films] in times.items():
+    #             for [name, theatre, cost] in films:
+    #                 writer_events.writerow(
+    #                     (event_id, f_date, day_week, time, name, theatre, cost)
+    #                 )
+    #                 event_id += 1
 
-    os.system(f'libreoffice --convert-to ods data_{city}_{date}.csv')  # convert to .ods
-    os.system(f'libreoffice --convert-to xlsx data_{city}_{date}.csv')  # and .xlsx
+    # os.system(f'libreoffice --convert-to ods data_{city}_{date}.csv')  # convert to .ods
+    # os.system(f'libreoffice --convert-to xlsx data_{city}_{date}.csv')  # and .xlsx
 
 
-def main(city = 'vladivostok'):
+def main(city='vladivostok'):
     os.chdir('data')
     collect_data(t_date, city)
-    events, days_of_week = parse_data(t_date, city)
-    save_data(events, days_of_week, t_date, city)
+    parse_data(t_date, city)
+    save_data(t_date, city)
     os.chdir('..')
     
 
@@ -157,3 +185,6 @@ def fetch_data(city: str):
 
 if __name__ == '__main__':
     main()
+    # events = json.loads(json_events)
+    # add clear_cache
+    # add vars to dicts
