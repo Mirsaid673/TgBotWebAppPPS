@@ -1,42 +1,17 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-
-import { StackDivider, extendTheme, ChakraProvider } from "@chakra-ui/react";
-import { Button, ButtonGroup } from "@chakra-ui/react";
-import { Stack, HStack, VStack } from "@chakra-ui/react";
-import { color } from 'framer-motion'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import MovieHall from "./MovieHall.jsx";
+import EventSwipe from "./EventSwipe.jsx";
 
 function App() {
   // 2. Wrap ChakraProvider at the root of your app
   return (
-    <>
-      <VStack spacing="10px" align="stretch" justify="center">
-        <HStack spacing="10px">
-          <Button onClick={() => console.log("clicked")}>
-            Button
-          </Button>
-          <Button >Button</Button>
-        </HStack>
-        <HStack spacing="10px">
-          <Button  onClick={() => console.log("clicked")}>
-            Button
-          </Button>
-          <Button >Button</Button>
-        </HStack>
-
-        <Button
-          
-          fill={true}
-          onClick={() => console.log("clicked")}
-        >
-          back
-        </Button>
-      </VStack>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/movie" element={<MovieHall />} />
+        <Route path="/event" element={<EventSwipe />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
