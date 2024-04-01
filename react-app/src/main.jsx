@@ -16,9 +16,13 @@ const theme = extendTheme({
 
       variants: {
         solid: {
+          border: "0px",
           bg: params.button_color,
           borderColor: params.bg_color,
           color: params.button_text_color,
+          _active: {
+            borderColor: "none",
+          },
         },
       },
     },
