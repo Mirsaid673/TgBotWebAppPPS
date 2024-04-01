@@ -3,6 +3,7 @@ import MovieHall from "./MovieHall.jsx";
 import EventSwipe from "./EventSwipe.jsx";
 
 function App() {
+  // 2. Wrap ChakraProvider at the root of your app
   return (
     <Router>
       <Routes>
