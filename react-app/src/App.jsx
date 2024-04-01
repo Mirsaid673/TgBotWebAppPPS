@@ -1,12 +1,13 @@
-import { Button, HStack, VStack } from "@chakra-ui/react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import MovieHall from "./MovieHall.jsx";
-import { Switch, Route } from "react-router-dom";
 
 function App() {
   return (
-    <Switch>
-      <Route exact path="/movie" component={MovieHall} />
-    </Switch>
+    <Router>
+      <Routes>
+        <Route path="/movie" element={<MovieHall />} />
+      </Routes>
+    </Router>
   );
 }
 

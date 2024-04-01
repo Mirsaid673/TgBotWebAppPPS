@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { extendTheme, ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 const params = window.Telegram.WebApp.themeParams;
 
@@ -44,9 +43,7 @@ const theme = extendTheme({
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-      <Router>
-        <App />
-      </Router>
+      <App />
     </ChakraProvider>
   </React.StrictMode>
 );
