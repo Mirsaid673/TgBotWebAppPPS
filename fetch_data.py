@@ -6,17 +6,17 @@ from bs4 import BeautifulSoup
 
 
 t_date = datetime.now().strftime('%d_%m_%Y')
-events = {}
-theatres_ids = {}
-theatre_url = {}
-name_url = {}
-genre_names = {}
-name_rating = {}
-dates_days_of_week = {}
+events: dict[str, dict[str, list[list[str, str, str, int]]]] = {}  # done
+films: dict[str, tuple[str, list[str], str, str, str, str]] = {}  # done
+theatres_ids: dict[str, list[int]] = {}  # done
+name_filmId: dict[str, str] = {}  # done
+genre_names: dict[str, set[str]] = {}  # done
+name_rating: dict[str, str] = {}  # done
+dates_days_of_week: dict[str, str] = {}  # done
 
 
 # get the HTML document
-def collect_data(date: str, city: str):
+def collect_data(date: str, city: str) -> None:
     if not os.path.isfile(f'data_{city}_{date}.html'):
         response = requests.get(url=f'https://kino.vl.ru/films/seances/?city={city}')
         print(f'https://kino.vl.ru/films/seances/?city={city} fetched')
@@ -55,12 +55,50 @@ def strict_date_format(text: str) -> tuple[str, str]:
     return day, month
 
 
+def write_film(name: str, rating: str, genres: list[str], length: str, description: str, picture_href: str, film_id: str) -> None:
+    name_filmId[name] = film_id
+    name_rating[name] = rating
+    for genre in genres:
+        if genre not in genre_names:
+            genre_names[genre] = set()
+        genre_names[genre].add(name)
+    films[name] = (rating, genres, length, description, picture_href, film_id)
+
+
+def parse_film(elem: BeautifulSoup, film_id: str):
+    name: str = elem.find(class_='film__title').get_text().strip()
+    if name in films:
+        return
+    length = ''
+    main_info: BeautifulSoup = elem.find(class_='film__info-main')
+    for info in main_info.find_all('film__info-text'):
+        if info[0].get_text().strip() == 'Продолжительность':
+            length: str = info[1].get_text().strip()
+            break
+    description: str = elem.find(class_='film__description').get_text().strip()
+    picture_href_elem: BeautifulSoup = elem.find(class_='js-film-pictures-swiper-wrapper')
+    rating_elem: BeautifulSoup = elem.find(class_='text-value age')
+    genres_elem: BeautifulSoup = elem.find(class_='genre')
+    picture_href: str = ''
+    genres: list[str] = []
+    rating: str = '0'
+    if picture_href_elem:
+        picture_href = picture_href_elem.contents[1]['href']
+    if genres_elem:
+        genres = genres_elem.get_text().strip().split()
+    if rating_elem:
+        rating = rating_elem.get_text().strip()[:-1]
+    write_film(name, rating, genres, length, description, picture_href, film_id)
+
+
 # parse event cost
 def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
     global t_date
+    new_film: bool = False
     # ref constitutes '/film/50183' (films has a uniq id)
     film_id = ref.split('/')[-2]  # separate id
     if not os.path.isfile(f'films/{city}_{t_date}_{film_id}.html'):  # first check if file exists not to parse it twice
+        new_film = True
         response = requests.get(f'https://kino.vl.ru{ref}?city={city}')
         print(f'https://kino.vl.ru{ref}?city={city} fetched')
         if response.status_code != 200:
@@ -69,6 +107,8 @@ def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
             file.write(response.text)
     with open(f'films/{city}_{t_date}_{film_id}.html') as file:
         soup = BeautifulSoup(file, "html.parser")
+    if new_film:
+        parse_film(soup, film_id)
     date_headings = soup.find_all(id="film__seances")[0].contents  # headers with dates of tables with times
     i = 0
     rows = ''
@@ -102,7 +142,7 @@ def name_to_theatre(elem: BeautifulSoup, date: str, time: str, city: str) -> lis
 # write the event to the dict
 def write_event(curr_date: str, curr_time: str, events: dict, triples: list) -> None:
     for [name, theatre, cost] in triples:
-        events[curr_date][curr_time].append((name, theatre, cost))
+        events[curr_date][curr_time].append([name, theatre, cost, -1])
 
 
 # parse films from the HTML document
@@ -137,15 +177,31 @@ def parse_data(date: str, city: str):
 
 
 def save_data(date: str, city: str) -> None:
-    # create jsons
+    seance_id = 0
+    for [date, for_date] in events.items():
+        for [time, for_time] in for_date.items():
+            for seance in for_time:
+                seance[3] = seance_id
+                seance_id += 1
+                theatre = seance[1]
+                if theatre not in theatres_ids:
+                    theatres_ids[theatre] = []
+                theatres_ids[theatre].append(seance_id)
 
-    json.dump(events, open(f'events_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(theatres_ids, open(f'theatres_ids_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(name_url, open(f'name_url_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(theatre_url, open(f'theatre_url_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(genre_names, open(f'genre_names_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(name_rating, open(f'name_rating_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
-    json.dump(dates_days_of_week, open(f'dates_days_of_week_{city}_{date}.json', 'a'), indent=4, ensure_ascii=False)
+    # replace sets with lists
+    genre_names_dict: dict[str, list[str]] = {}
+    for genre in genre_names:
+        genre_names_dict[genre] = list(genre_names[genre])
+
+    # create jsons
+    json.dump(events, open(f'events_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(films, open(f'films_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(theatres_ids, open(f'theatres_ids_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(name_filmId, open(f'name_url_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    # json.dump(theatre_url, open(f'theatre_url_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(genre_names, open(f'genre_names_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(name_rating, open(f'name_rating_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
+    json.dump(dates_days_of_week, open(f'dates_days_of_week_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
 
     # write headers
     # with open(f'data_{city}_{date}.csv', 'w') as file:

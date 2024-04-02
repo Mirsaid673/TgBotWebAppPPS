@@ -1,0 +1,3 @@
+#!/bin/bash
+rm data/*
+rm data/films/*
