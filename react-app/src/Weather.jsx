@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {WiDayCloudy, WiRain, WiSnow, WiDaySunny} from "react-icons/wi";
 import "./Weather.css";
 import weather from "./assets/weather/weather.png"
 import water from "./assets/weather/drop.png"
