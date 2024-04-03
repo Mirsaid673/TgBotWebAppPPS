@@ -42,6 +42,16 @@ p {
     font-size: 1.3rem; /* 12.5px */
 }
 
+.picture {
+    display: flex;
+    justify-content: center;
+    padding: 0 15% 5% 15%;
+}
+
+.centered {
+    align-self: center;
+    text-align: center;
+}
 
 @media only screen and (max-width: 600px) {
     html {
@@ -63,6 +73,6 @@ p {
 
 @media only screen and (min-width: 1800px) {
     html {
-        font-size: 175%; /* 1rem = 18.75px; 18.75px/16px = 150% *
+        font-size: 175%; /* 1rem = 18.75px; 18.75px/16px = 150% */
     }
 }
