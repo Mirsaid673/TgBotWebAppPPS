@@ -6,19 +6,19 @@
     gap: 0.7rem;
 }
 
-.weather-property {
+.weather-container div {
     display: flex;
     flex-direction: row;
     justify-content: left;
     gap: 1rem;
     margin-left: 5%;
 }
-.weather-property p {
+.weather-container div p {
     margin-top: auto;
     margin-bottom: auto;
 }
 
-.weather-property img {
+.weather-container div img {
     width: 7%;
 }
 

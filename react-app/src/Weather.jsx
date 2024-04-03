@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {Image, Icon} from "@chakra-ui/react";
 import {WiDayCloudy, WiRain, WiSnow, WiDaySunny} from "react-icons/wi";
 import "./Weather.css";
 import weather from "./assets/weather/weather.png"
@@ -10,16 +9,6 @@ import therm from "./assets/weather/temperature.png"
 import wind from "./assets/weather/wind.png"
 
 const Weather = () => {
-    const getIcon = (type) => {
-        if (type === "Clear")
-            return WiDaySunny;
-        if (type === "Snow")
-            return WiSnow;
-        if (type === "Clouds")
-            return WiDayCloudy;
-        if (type === "Rain")
-            return WiRain;
-    }
 
     const [weatherData, setWeatherData] = useState(null);
 
@@ -43,29 +32,29 @@ const Weather = () => {
             {weatherData ? (
                 <>
                     <h1 className={'headerGap'}>Погода во Владивостоке</h1>
-                    <div className={'weather-property'}>
-                        <img src={weather} alt={weather}></img>
+                    <div>
+                        <img src={weather} alt={weather}/>
                         <p>Описание: {weatherData.weather[0].description}</p>
                     </div>
-                    <div className={'weather-property'}>
-                        <img src={therm} alt={therm}></img>
+                    <div>
+                        <img src={therm} alt={therm}/>
                         <p>Температура: {weatherData.main.temp}°C</p>
                     </div>
-                    <div className={'weather-property'}>
-                        <img src={therm} alt={therm} className={'transparent'}></img>
+                    <div>
+                        <img src={therm} alt={therm} className={'transparent'}/>
                         <p>Ощущается как: {weatherData.main.feels_like}°C</p>
                     </div>
-                    <div className={'weather-property'}>
-                        <img src={water} alt={water}></img>
-                        <p>Влажность: {weatherData.main.humidity}</p>
+                    <div>
+                        <img src={water} alt={water}/>
+                        <p>Влажность: {weatherData.main.humidity}%</p>
                     </div>
-                    <div className={'weather-property'}>
-                        <img src={pressure} alt={pressure}></img>
-                        <p>Давление: {weatherData.main.pressure}</p>
+                    <div>
+                        <img src={pressure} alt={pressure}/>
+                        <p>Давление: {weatherData.main.pressure * 0.75} мм рт. ст.</p>
                     </div>
-                    <div className={'weather-property'}>
-                        <img src={wind} alt={wind}></img>
-                        <p>Скорость ветра: {weatherData.wind.speed}м/с</p>
+                    <div>
+                        <img src={wind} alt={wind}/>
+                        <p>Скорость ветра: {weatherData.wind.speed} м/с</p>
                     </div>
                 </>
             ) : (
