@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Checkbox } from "@chakra-ui/react";
+import duneImage from "./assets/dune.jpg"
 
 class Seat {
   constructor(type = "default", isOccupied = false) {
@@ -24,11 +25,10 @@ function MovieHall() {
   const [checkedSeats, setCheckedSeats] = useState([]);
 
   function getPrice(type) {
-    if (type == "default") {
+    if (type === "default")
       return 500;
-    } else if (type == "vip") {
+    else if (type === "vip")
       return 1000;
-    }
     return 0;
   }
 
@@ -75,15 +75,18 @@ function MovieHall() {
   }
 
   return (
-    <>
-      <div>
-        <h1>название фильма</h1>
-        <p>какая то инфа о фильме например описание</p>
-        <h2>время фильма</h2>
-      </div>
-      <div className="seats-container">{items}</div>
-      <p>Total price: {total_price}р.</p>
-    </>
+      <>
+        <div>
+          <div className={'picture'}>
+            <img src={duneImage} alt={duneImage}></img>
+          </div>
+          <h1>DUNE</h1>
+          <p className={'centered'}>Новая эра фантастики</p>
+          <h2>18:00</h2>
+        </div>
+        <div className="seats-container">{items}</div>
+        <p>Цена {total_price}₽.</p>
+      </>
   );
 }
 
