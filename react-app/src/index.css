@@ -1,4 +1,68 @@
-.seats-container {
+.app-container {
     display: flex;
     flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+}
+
+/* Set a larger base font size on the root element */
+
+h1, h2, h3, h4, h5, h6{
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    text-align: center;
+}
+
+h1 {
+    font-size: 1.5rem; /* 31.25px */
+}
+
+h2 {
+    font-size: 2rem; /* 25px */
+}
+
+h3 {
+    font-size: 1.75rem; /* 28.125px */
+}
+
+h4 {
+    font-size: 1.5rem; /* 22.5px */
+}
+
+h5 {
+    font-size: 1.25rem; /* 18.75px */
+}
+
+p {
+    font-size: 1.3rem; /* 12.5px */
+}
+
+
+@media only screen and (max-width: 600px) {
+    html {
+        font-size: 100%; /* 1rem = 12.5px; 12.5px/16px = 100% */
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    html {
+        font-size: 125%; /* 1rem = 12.5px; 12.5px/16px = 100% */
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    html {
+        font-size: 150%; /* 1rem = 12.5px; 12.5px/16px = 100% */
+    }
+}
+
+@media only screen and (min-width: 1800px) {
+    html {
+        font-size: 175%; /* 1rem = 18.75px; 18.75px/16px = 150% *
+    }
 }
