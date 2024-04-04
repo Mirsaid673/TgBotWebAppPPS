@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import axios from "axios";
 import "./Weather.css";
 import weather from "./assets/weather/weather.png"
-import water from "./assets/weather/drop.png"
+import water from "./assets/weather/drop.png"   
 import pressure from "./assets/weather/pressure.png"
 import therm from "./assets/weather/temperature.png"
 import wind from "./assets/weather/wind.png"
