@@ -8,9 +8,8 @@ class Seat {
   }
 }
 
-function MovieHall(film) {
-  console.log(film)
-  let filM = film.film;
+function MovieHall(film, time) {
+  film = film.film;
   
   const columns = 10;
   const rows = 7;
@@ -78,15 +77,14 @@ function MovieHall(film) {
   }
 
   console.log(image);
-  console.log(defaultImage);
-  console.log(film.pictureHref);
+
   return (
       <>
         <div>
           <div className={'picture'}>
             <img src={image} />
           </div>
-          <h1>{filM.name}</h1>
+          <h1>{film.name}</h1>
           <p className={'centered'}>Новая эра фантастики</p>
           <h2>{film.time}</h2>
         </div>
