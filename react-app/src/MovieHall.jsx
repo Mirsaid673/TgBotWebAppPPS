@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Checkbox } from "@chakra-ui/react";
+import { Button, Checkbox } from "@chakra-ui/react";
 import duneImage from "./assets/dune.jpg"
 
 class Seat {
@@ -85,7 +85,7 @@ function MovieHall() {
           <h2>18:00</h2>
         </div>
         <div className="seats-container">{items}</div>
-        <p>Цена {total_price}₽.</p>
+        <Button margin="1rem">Цена {total_price} ₽</Button>
       </>
   );
 }
