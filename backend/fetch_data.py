@@ -13,6 +13,8 @@ films: list[dict] = []
 theatres_seancesIds: dict[str, list[int]] = {}
 genre_namesIds: dict[str, set[int]] = {}
 dates_days_of_week: dict[str, str] = {}
+films_ids: set[int] = set()
+all_films_ids: list[int] = []
 
 
 # get the HTML document
@@ -63,7 +65,7 @@ def write_film(name: str, rating: int, genres: list[str], length: int,
         genre_namesIds[genre].add(film_id)
     films.append({})
     data = [('filmId', film_id), ('name', name), ('rating', rating), ('genres', genres),
-            ('length', length), ('description', description), ('picture_href', picture_href)]
+            ('length', length), ('description', description), ('pictureHref', picture_href)]
     for elem in data:
         films[-1][elem[0]] = elem[1]
 
@@ -100,6 +102,7 @@ def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> int:
     new_film: bool = False
     # ref constitutes '/film/50183' (films has a uniq id)
     film_id = ref.split('/')[-2]  # separate id
+    films_ids.add(int(film_id))
     if not os.path.isfile(f'films/{city}_{t_date}_{film_id}.html'):  # first check if file exists not to parse it twice
         new_film = True
         response = requests.get(f'https://kino.vl.ru{ref}?city={city}')
@@ -201,16 +204,20 @@ def save_data() -> None:
         theatres_seancesIds_fine[-1]['theatre'] = theatre
         theatres_seancesIds_fine[-1]['seance_ids'] = theatres_seancesIds[theatre]
 
-    # replace sets with lists
+    # replace sets with lists in genre_namesIds
     genre_names_dict: list[dict] = []
     for genre in genre_namesIds:
         genre_names_dict.append({})
         genre_names_dict[-1]['genre'] = genre
         genre_names_dict[-1]['filmIds'] = list(genre_namesIds[genre])
 
+    for film in films:
+        all_films_ids.append(film['filmId'])
+
     # create jsons
     data = [(seances, 'seances'), (films, 'films'), (theatres_seancesIds_fine, 'theatres-seancesIds'),
-            (genre_names_dict, 'genre-namesIds'), (dates_days_of_week, 'dates-days-of-week')]
+            (genre_names_dict, 'genre-namesIds'), (dates_days_of_week, 'dates-days-of-week'),
+            (all_films_ids, 'films-ids')]
     for elem in data:
         json.dump(elem[0], open(f'{elem[1]}_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
 
