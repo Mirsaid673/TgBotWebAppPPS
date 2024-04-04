@@ -12,6 +12,7 @@ function App() {
         <Route path="/movie" element={<MovieHall />} />
         <Route path="/weather" element={<Weather />} />
         <Route path="/booktable" element={<BookTable />} />
+        <Route path="/swiper" element={<SwipableCard />} />
       </Routes>
     </Router>
     </div>

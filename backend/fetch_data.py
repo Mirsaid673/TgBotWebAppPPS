@@ -1,23 +1,22 @@
 import os
+import sys
 import requests
 import json
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+_, city = sys.argv
 
 t_date = datetime.now().strftime('%d_%m_%Y')
 seances: dict[str, dict[str, list[list[str, str, str, int]]]] = {}
-films: dict[str, tuple[str, list[str], str, str, str, int]] = {}
+films: dict[int, tuple[str, int, list[str], int, str, str]] = {}
 theatres_ids: dict[str, list[int]] = {}
-name_filmId: dict[str, int] = {}
 genre_names: dict[str, set[int]] = {}
-name_rating: dict[str, str] = {}
 dates_days_of_week: dict[str, str] = {}
-id_name: dict[int, str] = {}
 
 
 # get the HTML document
-def collect_data(city: str) -> None:
+def collect_data() -> None:
     if not os.path.isfile(f'data_{city}_{t_date}.html'):
         response = requests.get(url=f'https://kino.vl.ru/films/seances/?city={city}')
         print(f'https://kino.vl.ru/films/seances/?city={city} fetched')
@@ -25,6 +24,21 @@ def collect_data(city: str) -> None:
             raise KeyError(f'Response is {response.status_code}')
         with open(f'data_{city}_{t_date}.html', 'w') as file:
             file.write(response.text)
+
+
+# 1 апреля -> 01.04
+def strict_date_format(text: str) -> str:
+    text = text.split()
+    day = text[0]
+    month = text[1]
+    if len(day) == 1:
+        day = '0' + day
+    months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+              'августа', 'сентября', 'октября', 'ноября', 'декабря']
+    month = str(months.index(month) + 1)
+    if len(month) == 1:
+        month = '0' + month
+    return day + '.' + month
 
 
 # separate the day of the week and delete extra whitespaces
@@ -41,44 +55,24 @@ def get_clear_text(text: str) -> tuple[str, str]:
     return text, found_day
 
 
-# 1 апреля -> 01.04
-def strict_date_format(text: str) -> tuple[str, str]:
-    text = text.split()
-    day = text[0]
-    month = text[1]
-    if len(day) == 1:
-        day = '0' + day
-    months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
-              'августа', 'сентября', 'октября', 'ноября', 'декабря']
-    month = str(months.index(month) + 1)
-    if len(month) == 1:
-        month = '0' + month
-    return day, month
-
-
-def write_film(name: str, rating: str, genres: list[str], length: str,
+def write_film(name: str, rating: int, genres: list[str], length: int,
                description: str, picture_href: str, film_id: int) -> None:
-    name_filmId[name] = film_id
-    name_rating[name] = rating
     for genre in genres:
         if genre not in genre_names:
             genre_names[genre] = set()
         genre_names[genre].add(film_id)
-        if film_id not in id_name:
-            id_name[film_id] = name
-    films[name] = (rating, genres, length, description, picture_href, film_id)
-    name_rating[name] = rating
+    films[film_id] = (name, rating, genres, length, description, picture_href)
 
 
 def parse_film(elem: BeautifulSoup, film_id: int):
     name: str = elem.find(class_='film__title').get_text().strip()
     if name in films:
         return
-    length: str = ''
+    duration: int = -1
     main_info: BeautifulSoup = elem.find(class_='film__info-main')
     for info in main_info.find_all(class_='film__info-text'):
         if 'Продолжительность' in info.get_text().strip():
-            length: str = info.get_text().strip().split('\n')[-1].split(' ')[0]
+            duration = int(info.get_text().strip().split('\n')[-1].strip().split(' ')[0])
             break
     description: str = elem.find(class_='film__description').get_text().strip()
     picture_href_elem: BeautifulSoup = elem.find(class_='js-film-pictures-swiper-wrapper')
@@ -86,14 +80,14 @@ def parse_film(elem: BeautifulSoup, film_id: int):
     genres_elem: BeautifulSoup = elem.find(class_='genre')
     picture_href: str = ''
     genres: list[str] = []
-    rating: str = '0'
+    rating: int = 0
     if picture_href_elem:
         picture_href = picture_href_elem.contents[1]['href']
     if genres_elem:
         genres = genres_elem.find_next().get_text(strip=True).split(', ')
     if rating_elem:
-        rating = rating_elem.get_text().strip()[:-1]
-    write_film(name, rating, genres, length, description, picture_href, film_id)
+        rating = int(rating_elem.get_text().strip()[:-1])
+    write_film(name, rating, genres, duration, description, picture_href, film_id)
 
 
 # parse seance cost
@@ -130,7 +124,7 @@ def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
             if len(tmp) >= 2:
                 return tmp[1]
             else:
-                return '0'  # price is not set
+                return '-1'  # price is not set
 
 
 # list of tuples (flm_name, theatre, cost) (possibly more than one theatre for the same film)
@@ -151,7 +145,7 @@ def write_seance(curr_date: str, curr_time: str, seances: dict, triples: list) -
 
 
 # parse films from the HTML document
-def parse_data(city: str):
+def parse_data():
     # `date` means the real today's date; `curr_date` and `curr_time` are intended for currently parsing elements
     with open(f'data_{city}_{t_date}.html') as file:
         soup = BeautifulSoup(file, 'html.parser')
@@ -166,6 +160,7 @@ def parse_data(city: str):
         for_time = tr.find(class_='time')
         if for_date:  # new date mark
             curr_date, day_of_week = get_clear_text(for_date.get_text())
+            curr_date = strict_date_format(curr_date)
             dates_days_of_week[curr_date] = day_of_week
             seances[curr_date] = {}
         elif for_time:  # new time mark (they have one time tag for several films)
@@ -181,8 +176,10 @@ def parse_data(city: str):
         i += 1
 
 
-def save_data(city: str) -> None:
+def save_data() -> None:
     print('Saving data...')
+
+    # add ids to seances and theatres
     seance_id = 0
     for [_, for_date] in seances.items():
         for [_, for_time] in for_date.items():
@@ -201,27 +198,23 @@ def save_data(city: str) -> None:
 
     # create jsons
     print('Saving jsons...')
-    data = [(seances, 'seances'), (films, 'films'), (theatres_ids, 'theatres_ids'), (name_filmId, 'name_filmId'),
-            (genre_names_dict, 'genre_names'), (name_rating, 'name_rating'), (dates_days_of_week, 'dates_days_of_week'),
-            (id_name, 'id_name')]
+    data = [(seances, 'seances'), (films, 'films'), (theatres_ids, 'theatres-ids'),
+            (genre_names_dict, 'genre-names'), (dates_days_of_week, 'dates-days-of-week')]
     for elem in data:
         json.dump(elem[0], open(f'{elem[1]}_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
 
 
-def main(city='vladivostok'):
+def main():
     os.chdir('data')
-    collect_data(city)
-    parse_data(city)
-    save_data(city)
+    collect_data()
+    parse_data()
+    save_data()
     os.chdir('..')
 
 
-def fetch_data(city: str):
-    main(city)
+def fetch_data():
+    main()
 
 
 if __name__ == '__main__':
     main()
-    # seances = json.loads(json_seances)
-    # add clear_cache
-    # add vars to dicts
