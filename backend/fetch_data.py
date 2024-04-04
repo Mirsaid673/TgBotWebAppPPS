@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 _, city = sys.argv
 
 t_date = datetime.now().strftime('%d_%m_%Y')
-seances: dict[str, dict[str, list[list[str, str, str, int]]]] = {}
-films: dict[int, tuple[str, int, list[str], int, str, str]] = {}
-theatres_ids: dict[str, list[int]] = {}
-genre_names: dict[str, set[int]] = {}
+seances: list[dict] = []
+films: list[dict] = []
+theatres_seancesIds: dict[str, list[int]] = {}
+genre_namesIds: dict[str, set[int]] = {}
 dates_days_of_week: dict[str, str] = {}
 
 
@@ -58,10 +58,14 @@ def get_clear_text(text: str) -> tuple[str, str]:
 def write_film(name: str, rating: int, genres: list[str], length: int,
                description: str, picture_href: str, film_id: int) -> None:
     for genre in genres:
-        if genre not in genre_names:
-            genre_names[genre] = set()
-        genre_names[genre].add(film_id)
-    films[film_id] = (name, rating, genres, length, description, picture_href)
+        if genre not in genre_namesIds:
+            genre_namesIds[genre] = set()
+        genre_namesIds[genre].add(film_id)
+    films.append({})
+    data = [('filmId', film_id), ('name', name), ('rating', rating), ('genres', genres),
+            ('length', length), ('description', description), ('picture_href', picture_href)]
+    for elem in data:
+        films[-1][elem[0]] = elem[1]
 
 
 def parse_film(elem: BeautifulSoup, film_id: int):
@@ -82,7 +86,7 @@ def parse_film(elem: BeautifulSoup, film_id: int):
     genres: list[str] = []
     rating: int = 0
     if picture_href_elem:
-        picture_href = picture_href_elem.contents[1]['href']
+        picture_href = picture_href_elem.contents[1]['href'].split('/')[-1]
     if genres_elem:
         genres = genres_elem.find_next().get_text(strip=True).split(', ')
     if rating_elem:
@@ -91,7 +95,7 @@ def parse_film(elem: BeautifulSoup, film_id: int):
 
 
 # parse seance cost
-def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
+def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> int:
     global t_date
     new_film: bool = False
     # ref constitutes '/film/50183' (films has a uniq id)
@@ -122,26 +126,30 @@ def parse_cost(ref: str, theatre: str, date: str, time: str, city: str) -> str:
         if row.contents[1].get_text().strip() == time and theatre in row.contents[3].get_text().strip():
             tmp = row.contents[7].string.strip().split()
             if len(tmp) >= 2:
-                return tmp[1]
+                return int(tmp[1])
             else:
-                return '-1'  # price is not set
+                return -1  # price is not set
 
 
 # list of tuples (flm_name, theatre, cost) (possibly more than one theatre for the same film)
-def name_to_theatre(elem: BeautifulSoup, date: str, time: str, city: str) -> list[tuple[str, str, str]]:
+def name_to_theatre(elem: BeautifulSoup, date: str, time: str, city: str) -> list[tuple[int, str, int]]:
     result = []
-    film_name = elem.get_text().strip()
+    name_id: int = int(elem.find('a')['href'].split('/')[-2])
     for theatre in elem.parent.find(class_='table-responsive__theatre-name').find_all('a'):
         _theatre = theatre.get_text().strip()
         cost = parse_cost(elem.find_next()["href"], _theatre, date, time, city)
-        result.append((film_name, _theatre, cost))
+        result.append((name_id, _theatre, cost))
     return result
 
 
 # write the seance to the dict
-def write_seance(curr_date: str, curr_time: str, seances: dict, triples: list) -> None:
-    for [name, theatre, cost] in triples:
-        seances[curr_date][curr_time].append([name, theatre, cost, -1])
+def write_seance(curr_date: str, curr_time: str, triples: list) -> None:
+    seances.append({})
+    for [nameId, theatre, cost] in triples:
+        elems = [("date", strict_date_format(curr_date)), ("time", curr_time), ("nameId", nameId),
+                 ("theatre", theatre), ("cost", cost), ("seanceId", -1)]
+        for [key, value] in elems:
+            seances[-1][key] = value
 
 
 # parse films from the HTML document
@@ -160,46 +168,49 @@ def parse_data():
         for_time = tr.find(class_='time')
         if for_date:  # new date mark
             curr_date, day_of_week = get_clear_text(for_date.get_text())
-            curr_date = strict_date_format(curr_date)
-            dates_days_of_week[curr_date] = day_of_week
-            seances[curr_date] = {}
+            dates_days_of_week[strict_date_format(curr_date)] = day_of_week
+            # seances[curr_date] = {}
         elif for_time:  # new time mark (they have one time tag for several films)
             curr_time, _ = get_clear_text(for_time.get_text())
-            seances[curr_date][curr_time] = []
+            # seances[curr_date][curr_time] = []
             for_name = trs[i].find(class_='table-responsive__film-name')
-            write_seance(curr_date, curr_time, seances, name_to_theatre(for_name, curr_date, curr_time, city))
+            write_seance(curr_date, curr_time, name_to_theatre(for_name, curr_date, curr_time, city))
             if 'rowspan' in for_time.attrs:
                 for j in range(int(for_time['rowspan']) - 1):  # the next `rowspan` elems contain films for `curr_time`
                     i += 1
                     for_name = trs[i].find(class_='table-responsive__film-name')
-                    write_seance(curr_date, curr_time, seances, name_to_theatre(for_name, curr_date, curr_time, city))
+                    write_seance(curr_date, curr_time, name_to_theatre(for_name, curr_date, curr_time, city))
         i += 1
 
 
 def save_data() -> None:
-    print('Saving data...')
-
     # add ids to seances and theatres
     seance_id = 0
-    for [_, for_date] in seances.items():
-        for [_, for_time] in for_date.items():
-            for seance in for_time:
-                seance[3] = seance_id
-                theatre = seance[1]
-                if theatre not in theatres_ids:
-                    theatres_ids[theatre] = []
-                theatres_ids[theatre].append(seance_id)
-                seance_id += 1
+    for seance in seances:
+        seance['seanceId'] = seance_id
+        theatre = seance['theatre']
+        if theatre not in theatres_seancesIds:
+            theatres_seancesIds[theatre] = []
+        theatres_seancesIds[theatre].append(seance_id)
+        seance_id += 1
+
+    # theatres_seancesIds to fine format
+    theatres_seancesIds_fine: list[dict] = []
+    for theatre in theatres_seancesIds:
+        theatres_seancesIds_fine.append({})
+        theatres_seancesIds_fine[-1]['theatre'] = theatre
+        theatres_seancesIds_fine[-1]['seance_ids'] = theatres_seancesIds[theatre]
 
     # replace sets with lists
-    genre_names_dict: dict[str, list[int]] = {}
-    for genre in genre_names:
-        genre_names_dict[genre] = list(genre_names[genre])
+    genre_names_dict: list[dict] = []
+    for genre in genre_namesIds:
+        genre_names_dict.append({})
+        genre_names_dict[-1]['genre'] = genre
+        genre_names_dict[-1]['filmIds'] = list(genre_namesIds[genre])
 
     # create jsons
-    print('Saving jsons...')
-    data = [(seances, 'seances'), (films, 'films'), (theatres_ids, 'theatres-ids'),
-            (genre_names_dict, 'genre-names'), (dates_days_of_week, 'dates-days-of-week')]
+    data = [(seances, 'seances'), (films, 'films'), (theatres_seancesIds_fine, 'theatres-seancesIds'),
+            (genre_names_dict, 'genre-namesIds'), (dates_days_of_week, 'dates-days-of-week')]
     for elem in data:
         json.dump(elem[0], open(f'{elem[1]}_{city}_{t_date}.json', 'a'), indent=4, ensure_ascii=False)
 
