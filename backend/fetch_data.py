@@ -63,11 +63,17 @@ def write_film(name: str, rating: int, genres: list[str], length: int,
         if genre not in genre_namesIds:
             genre_namesIds[genre] = set()
         genre_namesIds[genre].add(film_id)
+
     films.append({})
     data = [('filmId', film_id), ('name', name), ('rating', rating), ('genres', genres),
-            ('length', length), ('description', description), ('pictureHref', picture_href)]
+            ('length', length), ('description', description)]
     for elem in data:
         films[-1][elem[0]] = elem[1]
+
+    # download picture
+    img_data = requests.get(f'https://kino.vl.ru/kino/images/{picture_href}').content
+    with open(f'images/{film_id}.jpg', 'wb') as handler:
+        handler.write(img_data)
 
 
 def parse_film(elem: BeautifulSoup, film_id: int):

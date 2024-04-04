@@ -4,7 +4,7 @@ import "swiper/css";
 import 'swiper/css/effect-cards';
 import "./swiperStyle.css"
 import MovieHall from "./MovieHall.jsx";
-import films_imported from "../../backend/data/films_vladivostok_04_04_2024.json"
+import films_imported from "../../backend/data/films_vladivostok_05_04_2024.json"
 // now films import is hardcoded, should be done better later
 
 const SwipableCard = function () {
