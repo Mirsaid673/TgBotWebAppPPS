@@ -6,7 +6,7 @@
 .swiper-slide {
     text-align: center;
     font-size: 18px;
-    background: #fff;
+    background: var(--tg-theme-bg-color);
 
     /* Center slide text vertically */
     /*display: flex;*/
