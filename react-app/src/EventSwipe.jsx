@@ -1,5 +1,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCards } from 'swiper/modules';
 import "swiper/css";
+import 'swiper/css/effect-cards';
 import "./swiperStyle.css"
 import MovieHall from "./MovieHall.jsx";
 import films_imported from "../../backend/data/films_vladivostok_04_04_2024.json"

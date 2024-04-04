@@ -1,4 +1,7 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
+"react/prop-types"
+import { Swiper, SwiperSlide } from "swiper/react";
+
 import axios from "axios";
 import "./Weather.css";
 import weather from "./assets/weather/weather.png"
@@ -6,26 +9,12 @@ import water from "./assets/weather/drop.png"
 import pressure from "./assets/weather/pressure.png"
 import therm from "./assets/weather/temperature.png"
 import wind from "./assets/weather/wind.png"
+import {EffectCards} from "swiper/modules";
+import "swiper/css";
+import 'swiper/css/effect-cards';
+import "./swiperStyle.css"
 
-const Weather = () => {
-
-    const [weatherData, setWeatherData] = useState(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(
-                    `https://api.openweathermap.org/data/2.5/weather?q=Vladivostok&units=metric&lang=ru&appid=9e274a17162b8b27cfc5730a2d8f4fc7`
-                );
-                setWeatherData(response.data);
-            } catch (error) {
-                console.error("Error fetching weather data:", error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
+const weatherSlide = (weatherData) => {
     return (
         <div className="weather-container">
             {weatherData ? (
@@ -60,6 +49,50 @@ const Weather = () => {
                 <p>Loading weather data...</p>
             )}
         </div>
+    );
+}
+
+const WeatherSlide = (props) => {
+
+    const [weatherData, setWeatherData] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/forecast?q=Vladivostok&units=metric&lang=ru&appid=9e274a17162b8b27cfc5730a2d8f4fc7`
+                );
+                setWeatherData(response.data.list[props.index]);
+            } catch (error) {
+                console.error("Error fetching weather data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    return (
+        weatherSlide(weatherData)
+    );
+};
+
+const Weather = () => {
+    const range = (count) => {
+        let numbers = []
+        for (let i = 0; i < count; i++) {
+            numbers.push(i)
+        }
+        return numbers
+    }
+
+    return (
+        <>
+            <Swiper className="mySwiper" modules={[EffectCards]} effect="cards">
+                {range(10).map((el, val) => (
+                    <SwiperSlide key={el}><WeatherSlide index={val}/></SwiperSlide>
+                ))}
+            </Swiper>
+        </>
     );
 };
 
