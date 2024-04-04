@@ -3,13 +3,17 @@
     flex-direction:column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     width: 100vw;
     font-family: 'Roboto', sans-serif;
     font-weight: 600;
 }
 
 /* Set a larger base font size on the root element */
+
+body {
+    height: 150%;
+    overflow-x: hidden;
+}
 
 h1, h2, h3, h4, h5, h6{
     margin: 0;
@@ -45,7 +49,6 @@ p {
 .picture {
     display: flex;
     justify-content: center;
-    padding: 0 15% 5% 15%;
 }
 
 .centered {

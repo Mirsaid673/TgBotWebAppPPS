@@ -78,7 +78,7 @@ function MovieHall() {
       <>
         <div>
           <div className={'picture'}>
-            <img src={duneImage} alt={duneImage}></img>
+            <img src={duneImage} alt={duneImage}/>
           </div>
           <h1>DUNE</h1>
           <p className={'centered'}>Новая эра фантастики</p>
