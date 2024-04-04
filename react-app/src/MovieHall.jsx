@@ -66,7 +66,7 @@ function MovieHall() {
       row_items.push(
         <Checkbox
           key={checkboxId}
-          padding="0.35rem"
+          padding="0.2rem"
           onChange={(event) => handleCheckboxChange(event, checkboxId)}
         ></Checkbox>
       );
