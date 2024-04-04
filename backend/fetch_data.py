@@ -162,7 +162,7 @@ def name_to_theatre(elem: BeautifulSoup, date: str, time: str, city: str) -> lis
 def write_seance(curr_date: str, curr_time: str, triples: list) -> None:
     seances.append({})
     for [nameId, theatre, cost] in triples:
-        elems = [("date", strict_date_format(curr_date)), ("time", curr_time), ("nameId", nameId),
+        elems = [("date", strict_date_format(curr_date)), ("time", curr_time), ("filmId", nameId),
                  ("theatre", theatre), ("cost", cost), ("seanceId", -1)]
         for [key, value] in elems:
             seances[-1][key] = value
