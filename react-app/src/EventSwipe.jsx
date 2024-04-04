@@ -12,6 +12,7 @@
 //   Text, // Import Text from Chakra UI
 // } from "@chakra-ui/react";
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCards } from 'swiper/modules';
 import "swiper/css";
 import "./swiperStyle.css"
 import MovieHall from "./MovieHall.jsx";
@@ -19,7 +20,7 @@ import MovieHall from "./MovieHall.jsx";
 const SwipableCard = function () {
     return (
         <>
-            <Swiper className="mySwiper">
+            <Swiper className="mySwiper" modules={[EffectCards]} effect={'cards'} >
                 <SwiperSlide><MovieHall /></SwiperSlide>
                 <SwiperSlide><MovieHall /></SwiperSlide>
                 <SwiperSlide><MovieHall /></SwiperSlide>
