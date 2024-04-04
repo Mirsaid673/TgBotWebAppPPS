@@ -2,6 +2,8 @@ import os
 import sys
 import requests
 import json
+import shutil
+import time
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -70,10 +72,15 @@ def write_film(name: str, rating: int, genres: list[str], length: int,
     for elem in data:
         films[-1][elem[0]] = elem[1]
 
-    # download picture
-    img_data = requests.get(f'https://kino.vl.ru/kino/images/{picture_href}').content
-    with open(f'images/{film_id}.jpg', 'wb') as handler:
-        handler.write(img_data)
+    # download picture if it exists
+    if picture_href:
+        img_data = requests.get(f'https://kino.vl.ru/kino/images/{picture_href}').content
+        print(f'https://kino.vl.ru/kino/images/{picture_href} fetched')
+        with open(f'../../react-app/src/assets/films_images/{film_id}.jpg', 'wb') as handler:
+            handler.write(img_data)
+    else:
+        shutil.copyfile('../../react-app/src/assets/defaultImage.jpg',
+                        f'../../react-app/src/assets/films_images/{film_id}.jpg')
 
 
 def parse_film(elem: BeautifulSoup, film_id: int):
@@ -229,11 +236,13 @@ def save_data() -> None:
 
 
 def main():
+    start_time = time.time()
     os.chdir('data')
     collect_data()
     parse_data()
     save_data()
     os.chdir('..')
+    print(f'Finished in {int(time.time() - start_time)} seconds')
 
 
 def fetch_data():

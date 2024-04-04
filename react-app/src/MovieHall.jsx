@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Button, Checkbox } from "@chakra-ui/react";
-import defaultImage from "../src/assets/defaultImage.jpg"
 
 class Seat {
   constructor(type = "default", isOccupied = false) {
@@ -15,8 +14,7 @@ function MovieHall(film) {
   const columns = 10;
   const rows = 7;
 
-  const image = "https://www.kino.vl.ru/kino/images/" + film.pictureHref;
-  console.log(image);
+  const image = "../src/assets/films_images/" + film.filmId + ".jpg";
 
   // Define seats as a state variable
   const [seats, setSeats] = useState([]);
@@ -79,13 +77,11 @@ function MovieHall(film) {
   }
 
   console.log(image);
-  console.log(defaultImage);
-  console.log(film.pictureHref);
   return (
       <>
         <div>
           <div className={'picture'}>
-            <img src={film.pictureHref !== "" ? image : defaultImage} />
+            <img src={image} />
           </div>
           <h1>{film.name}</h1>
           <p className={'centered'}>Новая эра фантастики</p>
