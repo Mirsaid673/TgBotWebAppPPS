@@ -34,9 +34,8 @@ function MovieHall() {
 
   function calcPrice(seat_ids) {
     let price = 0;
-    for (let i = 0; i < seat_ids.length; i++) {
+    for (let i = 0; i < seat_ids.length; i++)
       price += getPrice(seats[seat_ids[i]].type);
-    }
     return price;
   }
 
