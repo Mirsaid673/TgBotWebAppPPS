@@ -1,6 +1,6 @@
 import { Image } from "@chakra-ui/react";
 
-const News = () => {
+const Events = () => {
     return (
         <>
             <Image src={""} />
@@ -9,4 +9,4 @@ const News = () => {
     )
 }
 
-export default News
+export default Events
