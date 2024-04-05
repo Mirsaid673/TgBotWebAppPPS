@@ -11,7 +11,7 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/movie" element={<SwipableCard />}/>
-                    <Route path="/weather" element={<Weather/>}/>
+                    <Route path="/weather" element={<Weather />}/>
                     <Route path="/booktable" element={<BookTable />}/>
                     <Route path="/news" element={<News />}/>
                 </Routes>

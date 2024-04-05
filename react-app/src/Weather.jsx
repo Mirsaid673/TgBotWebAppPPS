@@ -13,13 +13,14 @@ import {EffectCards} from "swiper/modules";
 import "swiper/css";
 import 'swiper/css/effect-cards';
 import "./swiperStyle.css"
+import { Heading } from "@chakra-ui/react";
 
 const weatherSlide = (weatherData) => {
     return (
         <div className="weather-container">
             {weatherData ? (
                 <>
-                    <h1 className={'headerGap'}>Погода во Владивостоке</h1>
+                    <h1 className={'headerGap'}></h1>
                     <div>
                         <img src={weather} alt={weather}/>
                         <p>Описание: {weatherData.weather[0].description}</p>
@@ -87,6 +88,7 @@ const Weather = () => {
 
     return (
         <>
+            <Heading>Погода во Владивостоке</Heading>
             <Swiper className="mySwiper" modules={[EffectCards]} effect="cards">
                 {range(10).map((el, val) => (
                     <SwiperSlide key={el}><WeatherSlide index={val}/></SwiperSlide>

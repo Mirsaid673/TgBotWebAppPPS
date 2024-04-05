@@ -85,7 +85,6 @@ function MovieHall(film, time) {
             <img src={image} />
           </div>
           <h1>{film.name}</h1>
-          <p className={'centered'}>Новая эра фантастики</p>
           <h2>{film.time}</h2>
         </div>
         <div className="seats-container">{items}</div>
