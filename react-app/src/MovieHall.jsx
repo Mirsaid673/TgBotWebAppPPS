@@ -10,7 +10,7 @@ class Seat {
 }
 
 function MovieHall(film) {
-  let filM = film.film;
+  let filM = film.film.film;
   
   const columns = 10;
   const rows = 7;
