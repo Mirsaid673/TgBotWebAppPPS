@@ -14,8 +14,8 @@ const SwipableCard = function () {
 
     const getTime = (id, times) => {
         for (let i = 0; i < times.length; i++)
-            if (id === times.nameId)
-                return times.time
+            if (id === times[i].nameId)
+                return times[i].time
         return "-1"
     }
 

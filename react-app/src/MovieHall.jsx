@@ -10,7 +10,8 @@ class Seat {
 }
 
 function MovieHall(film) {
-  let filM = film.film.film;
+  console.log(film)
+  let filM = film.film;
   
   const columns = 10;
   const rows = 7;
@@ -81,7 +82,7 @@ function MovieHall(film) {
       <>
         <div>
           <div className={'picture'}>
-            <img src={filM.pictureHref !== "" ? image : defaultImage} />
+            <img src={filM.pictureHref !== "" ? image : defaultImage} alt={""}/>
           </div>
           <h1>{filM.name}</h1>
           <p className={'centered'}>Новая эра фантастики</p>
