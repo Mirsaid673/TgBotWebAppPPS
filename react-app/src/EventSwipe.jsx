@@ -10,7 +10,6 @@ import films_times from "../../backend/data/seances_vladivostok_05_04_2024.json"
 const SwipableCard = function () {
     let films = [...films_imported];
     films = films.sort(() => 0.5 - Math.random());
-    console.log(films);
 
     const getTime = (id, times) => {
         for (let i = 0; i < times.length; i++)
